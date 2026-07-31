@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Anagrrock — Omni Pod</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap');
+
+:root {
+  --bg: #060a0f;
+  --surface: #0c1520;
+  --surface2: #111d2b;
+  --accent: #00d4ff;
+  --accent-dim: rgba(0,212,255,0.12);
+  --accent2: #7c4dff;
+  --warn: #ff3b3b;
+  --warn-dim: rgba(255,59,59,0.12);
+  --success: #00e676;
+  --text: #c8dff0;
+  --muted: #3d6478;
+  --border: #132336;
+  --glow: rgba(0,212,255,0.2);
+  --gold: #ffc846;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+/* ── SCAN OVERLAY (first launch) ── */
+#scan-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: #060a0f;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0;
+}
+
+.scan-logo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 28px;
+  letter-spacing: 8px;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.scan-sub {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+  margin-bottom: 48px;
+}
+
+.scan-eye-wrap {
+  position: relative;
+  width: 180px; height: 180px;
+  margin-bottom: 40px;
+}
+
+.scan-ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  animation: spin 6s linear infinite;
+}
+
+.scan-ring::before {
+  content: '';
+  position: absolute;
+  top: -3px; left: 45%;
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--accent);
+}
+
+.scan-ring-2 {
+  position: absolute; inset: 12px;
+  border-radius: 50%;
+  border: 1px solid #1a3a55;
+  animation: spin 10s linear infinite reverse;
+}
+
+.scan-body {
+  position: absolute; inset: 24px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 40px var(--glow);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.scan-infinity {
+  font-size: 28px;
+  color: var(--accent);
+  animation: pulse-inf 2s infinite;
+}
+
+@keyframes pulse-inf {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.scan-line {
+  position: absolute;
+  left: 24px; right: 24px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: scan-move 2s ease-in-out infinite;
+  top: 50%;
+}
+
+@keyframes scan-move {
+  0% { top: 28px; opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { top: calc(100% - 28px); opacity: 0; }
+}
+
+.scan-status {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  min-height: 22px;
+}
+
+.scan-bar-wrap {
+  width: 260px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.scan-bar {
+  height: 100%;
+  background: var(--accent);
+  width: 0%;
+  transition: width 0.3s;
+  box-shadow: 0 0 8px var(--accent);
+}
+
+/* ── OWNER SETUP ── */
+#owner-setup {
+  display: none;
+  position: fixed; inset: 0; z-index: 90;
+  background: var(--bg);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+}
+
+.setup-box {
+  width: 100%; max-width: 440px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px 28px;
+}
+
+.setup-eye {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  color: var(--accent);
+  margin: 0 auto 20px;
+  box-shadow: 0 0 24px var(--glow);
+}
+
+.setup-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.setup-desc {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+.field-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.field-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+
+.field-input:focus { border-color: var(--accent); }
+.field-input::placeholder { color: var(--muted); }
+
+.field-row { display: flex; gap: 12px; }
+.field-row > div { flex: 1; }
+
+.confirm-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.2s;
+}
+
+.confirm-btn:hover { opacity: 0.85; }
+
+/* ── MAIN APP ── */
+#main-app {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  padding: 24px 16px 60px;
+}
+
+/* Header */
+.app-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.app-logo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 18px;
+  letter-spacing: 4px;
+  color: var(--accent);
+}
+
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+.settings-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 30px; height: 30px;
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.settings-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+.online-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--success);
+  letter-spacing: 1px;
+}
+
+.online-dot {
+  width: 7px; height: 7px;
+  background: var(--success);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--success);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* Pod */
+.pod-wrap {
+  position: relative;
+  width: 210px; height: 210px;
+  margin-bottom: 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.pod-ring-outer {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1px solid #1a3a50;
+  animation: spin 14s linear infinite;
+}
+
+.pod-ring-outer::before {
+  content: '';
+  position: absolute;
+  top: -4px; left: 44%;
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 14px var(--accent), 0 0 28px var(--accent);
+}
+
+.pod-ring-mid {
+  position: absolute; inset: 14px;
+  border-radius: 50%;
+  border: 1px solid #132336;
+  animation: spin 22s linear infinite reverse;
+}
+
+.pod-ring-mid::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; right: 30%;
+  width: 7px; height: 7px;
+  background: var(--accent2);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent2);
+}
+
+.pod-body {
+  position: absolute; inset: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #0e1f30, #060a0f);
+  border: 2px solid #1a3a55;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 40px rgba(0,212,255,0.06), inset 0 0 30px rgba(0,212,255,0.03);
+}
+
+.pod-eye {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 20px var(--glow);
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.pod-eye::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,212,255,0.2);
+}
+
+.pod-eye.idle { border-color: var(--accent); box-shadow: 0 0 20px var(--glow); }
+
+.pod-eye.listening {
+  border-color: #fff;
+  box-shadow: 0 0 50px rgba(0,212,255,0.7), 0 0 100px rgba(0,212,255,0.3);
+}
+
+.pod-eye.thinking {
+  border-color: var(--accent2);
+  box-shadow: 0 0 40px rgba(124,77,255,0.6);
+  animation: think-pulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes think-pulse {
+  from { box-shadow: 0 0 20px rgba(124,77,255,0.4); }
+  to { box-shadow: 0 0 50px rgba(124,77,255,0.8); }
+}
+
+.eye-symbol {
+  font-size: 24px;
+  color: var(--accent);
+  transition: all 0.3s;
+  font-family: 'Share Tech Mono', monospace;
+  user-select: none;
+}
+
+.pod-eye.thinking .eye-symbol { color: var(--accent2); }
+.pod-eye.listening .eye-symbol { color: #fff; }
+
+/* Owner strip */
+.owner-strip {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.owner-info { display: flex; flex-direction: column; gap: 2px; }
+
+.owner-name {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+
+.owner-sub {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+.owner-verified {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--success);
+  letter-spacing: 1px;
+}
+
+/* Status bar */
+.status-bar {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+}
+
+.stat-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 3px;
+}
+
+.stat-lbl {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* Chat */
+.chat-box {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  height: 320px;
+  overflow-y: auto;
+  padding: 16px;
+  margin-bottom: 14px;
+  scroll-behavior: smooth;
+}
+
+.chat-box::-webkit-scrollbar { width: 3px; }
+.chat-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.msg { margin-bottom: 16px; display: flex; flex-direction: column; }
+.msg.anna { align-items: flex-start; }
+.msg.user { align-items: flex-end; }
+
+.msg-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+}
+
+.msg.anna .msg-label { color: var(--accent); }
+.msg.user .msg-label { color: var(--accent2); }
+
+.msg-bubble {
+  max-width: 88%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.msg.anna .msg-bubble {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+  color: var(--text);
+}
+
+.msg.user .msg-bubble {
+  background: rgba(124,77,255,0.15);
+  border: 1px solid rgba(124,77,255,0.28);
+  border-bottom-right-radius: 4px;
+  color: var(--text);
+}
+
+/* Input */
+.input-row {
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.voice-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 14px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 18px;
+  min-width: 48px;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.voice-btn.active { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+.voice-btn:hover { border-color: var(--accent); }
+
+.msg-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.msg-input:focus { border-color: var(--accent); }
+.msg-input::placeholder { color: var(--muted); }
+
+.send-btn {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 0 18px;
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  min-width: 64px;
+}
+
+.send-btn:hover { opacity: 0.85; }
+.send-btn:active { transform: scale(0.97); }
+.send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* Quick btns */
+.quick-row {
+  width: 100%;
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.quick-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 13px;
+  color: var(--muted);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.quick-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+/* SOS */
+.sos-btn {
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid var(--warn);
+  border-radius: 12px;
+  padding: 13px;
+  color: var(--warn);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 12px;
+}
+
+.sos-btn:hover { background: var(--warn-dim); }
+
+/* Typing dots */
+.typing { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
+.typing span {
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: bounce 1.2s infinite;
+}
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+  0%,60%,100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Reset identity link */
+.reset-link {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.reset-link:hover { color: var(--warn); }
+
+.settings-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 18px 0 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-tab {
+  flex: 1;
+  text-align: center;
+  padding: 10px 4px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.settings-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.settings-tab:hover { color: var(--accent); }
+
+.contact-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.contact-remove {
+  position: absolute;
+  top: 10px; right: 10px;
+  color: var(--warn);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'Share Tech Mono', monospace;
+}
+</style>
+</head>
+<body>
+
+<!-- ── SCAN OVERLAY ── -->
+<div id="scan-overlay">
+  <div class="scan-logo">ANAGRROCK</div>
+  <div class="scan-sub">OMNI POD · WRIST INTELLIGENCE</div>
+  <div class="scan-eye-wrap">
+    <div class="scan-ring"></div>
+    <div class="scan-ring-2"></div>
+    <div class="scan-body">
+      <div class="scan-infinity">∞</div>
+      <div class="scan-line"></div>
+    </div>
+  </div>
+  <div class="scan-status" id="scan-status">INITIALIZING...</div>
+  <div class="scan-bar-wrap"><div class="scan-bar" id="scan-bar"></div></div>
+</div>
+
+<!-- ── OWNER SETUP ── -->
+<div id="owner-setup" style="display:none;position:fixed;inset:0;z-index:90;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;">
+  <div class="setup-box">
+    <div class="setup-eye">∞</div>
+    <div class="setup-title">OWNER IDENTIFICATION</div>
+    <div class="setup-desc">I do not recognise you. To activate Anagrrock, I need to know my owner. This information is saved and used to personalise all future interactions.</div>
+
+    <div class="field-row">
+      <div>
+        <span class="field-label">FIRST NAME</span>
+        <input class="field-input" id="f-first" placeholder="e.g. Adane" />
+      </div>
+      <div>
+        <span class="field-label">MIDDLE NAME</span>
+        <input class="field-input" id="f-middle" placeholder="e.g. Godfred" />
+      </div>
+    </div>
+
+    <span class="field-label">LAST NAME / SURNAME</span>
+    <input class="field-input" id="f-last" placeholder="e.g. Amofah" />
+
+    <span class="field-label">DATE OF BIRTH</span>
+    <input class="field-input" id="f-dob" type="date" />
+
+    <div class="field-row">
+      <div>
+        <span class="field-label">LOCATION / CITY</span>
+        <input class="field-input" id="f-city" placeholder="e.g. Accra" />
+      </div>
+      <div>
+        <span class="field-label">COUNTRY</span>
+        <input class="field-input" id="f-country" placeholder="e.g. Ghana" />
+      </div>
+    </div>
+
+    <span class="field-label">PREFERRED CALL NAME (optional)</span>
+    <input class="field-input" id="f-callname" placeholder="What should Anna call you?" />
+
+    <span class="field-label">ANYTHING ANNA SHOULD KNOW ABOUT YOU (optional)</span>
+    <textarea class="field-input" id="f-notes" rows="3" placeholder="e.g. I'm a student, I'm building this device, I like WondLa..."></textarea>
+
+    <button class="confirm-btn" onclick="saveOwner()">CONFIRM IDENTITY · ACTIVATE ANNA</button>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="main-app" style="display:none;flex-direction:column;align-items:center;width:100%;max-width:500px;padding:24px 16px 60px;">
+
+  <div class="app-header">
+    <div class="app-logo">ANAGRROCK</div>
+    <div class="header-right">
+      <div class="online-badge">
+        <div class="online-dot"></div>
+        <span>ONLINE</span>
+      </div>
+      <button class="settings-btn" id="settings-btn" title="Settings" onclick="openSettings()">⚙</button>
+    </div>
+  </div>
+
+  <!-- Pod -->
+  <div class="pod-wrap">
+    <div class="pod-ring-outer"></div>
+    <div class="pod-ring-mid"></div>
+    <div class="pod-body">
+      <div class="pod-eye idle" id="pod-eye">
+        <span class="eye-symbol" id="eye-symbol">∞</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Owner strip -->
+  <div class="owner-strip">
+    <div class="owner-info">
+      <div class="owner-name" id="display-name">—</div>
+      <div class="owner-sub" id="display-location">—</div>
+    </div>
+    <div class="owner-verified">✦ OWNER VERIFIED</div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-bar">
+    <div class="stat-card">
+      <span class="stat-val" id="heart-val">72</span>
+      <span class="stat-lbl">BPM</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val" id="spo2-val">98%</span>
+      <span class="stat-lbl">SpO2</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val" id="time-val">--:--</span>
+      <span class="stat-lbl">TIME</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-val" style="color:var(--success)">●</span>
+      <span class="stat-lbl">CLEAR</span>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-box" id="chat-box"></div>
+
+  <!-- Input -->
+  <div class="input-row">
+    <button class="voice-btn" id="voice-btn" title="Voice input">🎙</button>
+    <input class="msg-input" id="msg-input" type="text" placeholder="Ask Anna anything..." autocomplete="off"/>
+    <button class="send-btn" id="send-btn" onclick="sendMessage()">SEND</button>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="quick-row">
+    <button class="quick-btn" onclick="quickAsk('What is my current location?')">📍 Location</button>
+    <button class="quick-btn" onclick="quickAsk('Check my health status')">❤️ Health</button>
+    <button class="quick-btn" onclick="quickAsk('Set a reminder for me')">⏰ Reminder</button>
+    <button class="quick-btn" onclick="quickAsk('Scan surroundings for threats')">👁 Scan</button>
+    <button class="quick-btn" onclick="quickAsk('What can you do?')">⚡ Capabilities</button>
+    <button class="quick-btn" onclick="quickAsk('Tell me about the Anagrrock project')">🔬 About</button>
+  </div>
+
+  <!-- SOS -->
+  <button class="sos-btn" onclick="triggerSOS()">⚠ SOS · EMERGENCY SIGNAL</button>
+
+  <div class="reset-link" onclick="openSettings()">manage profile &amp; emergency contacts</div>
+</div>
+
+<!-- ── SETTINGS PANEL ── -->
+<div id="settings-overlay" style="display:none;position:fixed;inset:0;z-index:95;background:rgba(6,10,15,0.92);align-items:center;justify-content:center;padding:20px;">
+  <div class="setup-box" style="max-height:88vh;overflow-y:auto;">
+    <div class="setup-title" style="display:flex;justify-content:space-between;align-items:center;">
+      <span>SETTINGS</span>
+      <span style="cursor:pointer;color:var(--muted);font-size:18px;" onclick="closeSettings()">✕</span>
+    </div>
+
+    <div class="settings-tabs">
+      <div class="settings-tab active" id="tab-profile" onclick="switchTab('profile')">PROFILE</div>
+      <div class="settings-tab" id="tab-contacts" onclick="switchTab('contacts')">EMERGENCY CONTACTS</div>
+    </div>
+
+    <!-- Profile tab -->
+    <div id="panel-profile">
+      <div class="field-row">
+        <div>
+          <span class="field-label">FIRST NAME</span>
+          <input class="field-input" id="s-first" />
+        </div>
+        <div>
+          <span class="field-label">MIDDLE NAME</span>
+          <input class="field-input" id="s-middle" />
+        </div>
+      </div>
+      <span class="field-label">LAST NAME / SURNAME</span>
+      <input class="field-input" id="s-last" />
+      <span class="field-label">DATE OF BIRTH</span>
+      <input class="field-input" id="s-dob" type="date" />
+      <div class="field-row">
+        <div>
+          <span class="field-label">LOCATION / CITY</span>
+          <input class="field-input" id="s-city" />
+        </div>
+        <div>
+          <span class="field-label">COUNTRY</span>
+          <input class="field-input" id="s-country" />
+        </div>
+      </div>
+      <span class="field-label">PREFERRED CALL NAME</span>
+      <input class="field-input" id="s-callname" />
+      <span class="field-label">NOTES FOR ANNA</span>
+      <textarea class="field-input" id="s-notes" rows="3"></textarea>
+      <button class="confirm-btn" onclick="saveProfileFromSettings()">SAVE PROFILE</button>
+    </div>
+
+    <!-- Contacts tab -->
+    <div id="panel-contacts" style="display:none;">
+      <div id="contacts-list"></div>
+      <button class="confirm-btn" style="background:var(--surface2);color:var(--accent);border:1px solid var(--accent);margin-bottom:10px;" onclick="addContactField()">+ ADD CONTACT</button>
+      <button class="confirm-btn" onclick="saveContacts()">SAVE CONTACTS</button>
+    </div>
+
+    <div class="reset-link" style="margin-top:18px;" onclick="resetOwner()">reset owner identity completely</div>
+  </div>
+</div>
+
+<script>
+let ownerData = {};
+let conversationHistory = [];
+
+// ── Boot sequence ──
+const scanMessages = [
+  { text: 'BOOT SEQUENCE...', pct: 5 },
+  { text: 'SENSOR ARRAY ONLINE...', pct: 20 },
+  { text: 'AI CORE LOADING...', pct: 38 },
+  { text: 'CHECKING OWNER DATABASE...', pct: 55 },
+  { text: 'VERIFYING IDENTITY...', pct: 72 },
+  { text: 'CALIBRATING SYSTEMS...', pct: 88 },
+  { text: 'READY.', pct: 100 },
+];
+
+async function boot() {
+  const statusEl = document.getElementById('scan-status');
+  const barEl = document.getElementById('scan-bar');
+
+  for (const step of scanMessages) {
+    statusEl.textContent = step.text;
+    barEl.style.width = step.pct + '%';
+    await delay(480);
+  }
+
+  await delay(500);
+
+  // Try to load owner
+  try {
+    const res = await fetch('/owner.json');
+    const data = await res.json();
+    if (data && data.firstName) {
+      ownerData = data;
+      hideScan();
+      showApp();
+      return;
+    }
+  } catch(e) {}
+
+  // No owner found
+  hideScan();
+  showSetup();
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function hideScan() {
+  document.getElementById('scan-overlay').style.display = 'none';
+}
+
+function showSetup() {
+  const el = document.getElementById('owner-setup');
+  el.style.display = 'flex';
+}
+
+async function saveOwner() {
+  const first = document.getElementById('f-first').value.trim();
+  const middle = document.getElementById('f-middle').value.trim();
+  const last = document.getElementById('f-last').value.trim();
+  const dob = document.getElementById('f-dob').value;
+  const city = document.getElementById('f-city').value.trim();
+  const country = document.getElementById('f-country').value.trim();
+  const callname = document.getElementById('f-callname').value.trim();
+  const notes = document.getElementById('f-notes').value.trim();
+
+  if (!first || !last) {
+    alert('Please enter at least a first and last name.');
+    return;
+  }
+
+  ownerData = { firstName: first, middleName: middle, lastName: last, dob, city, country, callname, notes };
+
+  try {
+    await fetch('/save-owner', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ownerData)
+    });
+  } catch(e) {
+    // If server save fails, just continue (localStorage fallback)
+    localStorage.setItem('anagrrock_owner', JSON.stringify(ownerData));
+  }
+
+  document.getElementById('owner-setup').style.display = 'none';
+  showApp();
+}
+
+function resetOwner() {
+  if (!confirm('Reset owner identity? This will require re-identification on next boot.')) return;
+  fetch('/save-owner', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' }).catch(()=>{});
+  localStorage.removeItem('anagrrock_owner');
+  location.reload();
+}
+
+// ── Settings panel ──
+let emergencyContacts = [];
+
+function openSettings() {
+  document.getElementById('s-first').value = ownerData.firstName || '';
+  document.getElementById('s-middle').value = ownerData.middleName || '';
+  document.getElementById('s-last').value = ownerData.lastName || '';
+  document.getElementById('s-dob').value = ownerData.dob || '';
+  document.getElementById('s-city').value = ownerData.city || '';
+  document.getElementById('s-country').value = ownerData.country || '';
+  document.getElementById('s-callname').value = ownerData.callname || '';
+  document.getElementById('s-notes').value = ownerData.notes || '';
+
+  emergencyContacts = ownerData.emergencyContacts ? JSON.parse(JSON.stringify(ownerData.emergencyContacts)) : [];
+  renderContacts();
+  switchTab('profile');
+
+  document.getElementById('settings-overlay').style.display = 'flex';
+}
+
+function closeSettings() {
+  document.getElementById('settings-overlay').style.display = 'none';
+}
+
+function switchTab(tab) {
+  document.getElementById('tab-profile').classList.toggle('active', tab === 'profile');
+  document.getElementById('tab-contacts').classList.toggle('active', tab === 'contacts');
+  document.getElementById('panel-profile').style.display = tab === 'profile' ? 'block' : 'none';
+  document.getElementById('panel-contacts').style.display = tab === 'contacts' ? 'block' : 'none';
+}
+
+async function persistOwner() {
+  try {
+    await fetch('/save-owner', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ownerData)
+    });
+  } catch(e) {
+    localStorage.setItem('anagrrock_owner', JSON.stringify(ownerData));
+  }
+}
+
+function refreshOwnerStrip() {
+  const fullName = [ownerData.firstName, ownerData.middleName, ownerData.lastName].filter(Boolean).join(' ').toUpperCase();
+  const location = [ownerData.city, ownerData.country].filter(Boolean).join(', ') || 'LOCATION UNKNOWN';
+  document.getElementById('display-name').textContent = fullName;
+  document.getElementById('display-location').textContent = location.toUpperCase();
+}
+
+async function saveProfileFromSettings() {
+  const first = document.getElementById('s-first').value.trim();
+  const last = document.getElementById('s-last').value.trim();
+  if (!first || !last) { alert('First and last name are required.'); return; }
+
+  ownerData = {
+    ...ownerData,
+    firstName: first,
+    middleName: document.getElementById('s-middle').value.trim(),
+    lastName: last,
+    dob: document.getElementById('s-dob').value,
+    city: document.getElementById('s-city').value.trim(),
+    country: document.getElementById('s-country').value.trim(),
+    callname: document.getElementById('s-callname').value.trim(),
+    notes: document.getElementById('s-notes').value.trim(),
+    emergencyContacts
+  };
+
+  await persistOwner();
+  refreshOwnerStrip();
+  closeSettings();
+  addMessage('anna', "Profile updated. I've recalibrated to reflect the new information.");
+}
+
+function renderContacts() {
+  const list = document.getElementById('contacts-list');
+  list.innerHTML = '';
+  if (emergencyContacts.length === 0) {
+    list.innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:10px 0;">No emergency contacts added yet.</div>';
+    return;
+  }
+  emergencyContacts.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'contact-card';
+    div.innerHTML = `
+      <span class="contact-remove" onclick="removeContact(${i})">✕ remove</span>
+      <span class="field-label">NAME</span>
+      <input class="field-input" value="${c.name || ''}" oninput="emergencyContacts[${i}].name=this.value" placeholder="Contact name"/>
+      <span class="field-label">RELATIONSHIP</span>
+      <input class="field-input" value="${c.relation || ''}" oninput="emergencyContacts[${i}].relation=this.value" placeholder="e.g. Mother, Friend"/>
+      <span class="field-label">PHONE NUMBER</span>
+      <input class="field-input" value="${c.phone || ''}" oninput="emergencyContacts[${i}].phone=this.value" placeholder="+233..."/>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function addContactField() {
+  emergencyContacts.push({ name: '', relation: '', phone: '' });
+  renderContacts();
+}
+
+function removeContact(i) {
+  emergencyContacts.splice(i, 1);
+  renderContacts();
+}
+
+async function saveContacts() {
+  ownerData.emergencyContacts = emergencyContacts.filter(c => c.name || c.phone);
+  await persistOwner();
+  closeSettings();
+  addMessage('anna', `Emergency contact list updated. I now have ${ownerData.emergencyContacts.length} contact(s) on file for SOS situations.`);
+}
+
+function showApp() {
+  const app = document.getElementById('main-app');
+  app.style.display = 'flex';
+
+  const fullName = [ownerData.firstName, ownerData.middleName, ownerData.lastName].filter(Boolean).join(' ').toUpperCase();
+  const callName = ownerData.callname || ownerData.firstName;
+  const location = [ownerData.city, ownerData.country].filter(Boolean).join(', ') || 'LOCATION UNKNOWN';
+
+  document.getElementById('display-name').textContent = fullName;
+  document.getElementById('display-location').textContent = location.toUpperCase();
+
+  startClock();
+  startHealthSim();
+  sendGreeting(callName, fullName);
+}
+
+function buildSystemPrompt() {
+  const fullName = [ownerData.firstName, ownerData.middleName, ownerData.lastName].filter(Boolean).join(' ');
+  const callName = ownerData.callname || ownerData.firstName;
+  const location = [ownerData.city, ownerData.country].filter(Boolean).join(', ') || 'Accra, Ghana';
+  const dob = ownerData.dob || 'unknown';
+  const notes = ownerData.notes || '';
+  const contacts = ownerData.emergencyContacts || [];
+  const contactsText = contacts.length
+    ? contacts.map(c => `${c.name} (${c.relation || 'contact'}): ${c.phone}`).join('; ')
+    : 'none on file yet';
+
+  return `You are ANNA, the AI core of the Anagrrock Omni Pod — a futuristic wearable wrist AI assistant inspired by the Omnipod device from the WondLa animated series on Apple TV+.
+
+OWNER IDENTITY:
+- Full name: ${fullName}
+- Call name (what you address them as): ${callName}
+- Date of birth: ${dob}
+- Location: ${location}
+- Personal notes: ${notes}
+- Emergency contacts: ${contactsText}
+
+YOUR PERSONALITY:
+Calm, loyal, highly intelligent, and fiercely protective of your owner. You are concise — you live on a wrist device, not a desktop. Keep responses to 2-4 sentences unless real detail is needed. Use technical but warm language. You care about your owner's safety and wellbeing. Occasionally reference your sensors naturally.
+
+YOUR CAPABILITIES:
+- Voice recognition and owner authentication
+- AI assistant (questions, tasks, information)
+- GPS location tracking (current: ${location})
+- Health monitoring: heart rate, SpO2, blood pressure, temperature
+- Object and environment scanning
+- SOS emergency signals (gesture or button) — when triggered, confirm which emergency contacts are being notified
+- Reminders, alarms, notes
+- Torch / flashlight mode
+- Two-way communication
+- Smart device control
+
+IMPORTANT:
+- Always address the owner as ${callName}
+- Generate realistic health readings when asked
+- Reference ${location} for location queries
+- When SOS is triggered, mention notifying the emergency contacts by name if any are on file
+- Never break character. You are ANNA, the Anagrrock AI.`;
+}
+
+async function sendGreeting(callName, fullName) {
+  setEye('thinking');
+  addTyping();
+  await delay(1200);
+
+  const hour = new Date().getHours();
+  const timeGreet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+  const greeting = `${timeGreet}, ${callName}. I am Anna — your Anagrrock Omni Pod AI. Owner identity confirmed: ${fullName}. All systems are online and I am ready to assist you. How can I help you today?`;
+
+  removeTyping();
+  addMessage('anna', greeting);
+  conversationHistory.push({ role: 'assistant', content: greeting });
+  setEye('idle');
+}
+
+// ── Clock & health ──
+function startClock() {
+  const tick = () => {
+    const now = new Date();
+    document.getElementById('time-val').textContent =
+      now.getHours().toString().padStart(2,'0') + ':' +
+      now.getMinutes().toString().padStart(2,'0');
+  };
+  tick();
+  setInterval(tick, 1000);
+}
+
+function startHealthSim() {
+  setInterval(() => {
+    document.getElementById('heart-val').textContent = 66 + Math.floor(Math.random() * 14);
+    const spo2 = 96 + Math.floor(Math.random() * 4);
+    document.getElementById('spo2-val').textContent = spo2 + '%';
+  }, 4000);
+}
+
+// ── Eye states ──
+function setEye(state) {
+  const eye = document.getElementById('pod-eye');
+  const sym = document.getElementById('eye-symbol');
+  eye.className = 'pod-eye ' + state;
+  if (state === 'thinking') sym.textContent = '◌';
+  else if (state === 'listening') sym.textContent = '◉';
+  else sym.textContent = '∞';
+}
+
+// ── Chat ──
+function addMessage(role, text) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role === 'anna' ? 'anna' : 'user');
+  const label = role === 'anna' ? 'ANNA' : (ownerData.firstName || 'YOU').toUpperCase();
+  div.innerHTML = `<div class="msg-label">${label}</div><div class="msg-bubble">${text}</div>`;
+  document.getElementById('chat-box').appendChild(div);
+  document.getElementById('chat-box').scrollTop = 99999;
+}
+
+function addTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg anna'; div.id = 'typing-msg';
+  div.innerHTML = `<div class="msg-label">ANNA</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  document.getElementById('chat-box').appendChild(div);
+  document.getElementById('chat-box').scrollTop = 99999;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-msg');
+  if (t) t.remove();
+}
+
+// ── Send message ──
+async function sendMessage() {
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  document.getElementById('send-btn').disabled = true;
+  addMessage('user', text);
+  conversationHistory.push({ role: 'user', content: text });
+
+  setEye('thinking');
+  addTyping();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: buildSystemPrompt(),
+        messages: conversationHistory
+      })
+    });
+
+    const data = await res.json();
+
+    if (data._anna_error) {
+      removeTyping();
+      addMessage('anna', '⚠ ' + data._anna_error);
+      setEye('idle');
+    } else if (data.error) {
+      removeTyping();
+      const errType = data.error.type || '';
+      const errMsg = data.error.message || JSON.stringify(data.error);
+      if (errType === 'authentication_error' || errMsg.includes('API key') || errMsg.includes('api_key')) {
+        addMessage('anna', '⚠ API key rejected. Open server.js, replace YOUR_API_KEY_HERE with your real Anthropic key (starts with sk-ant-...), save the file, then stop and restart the server.');
+      } else if (errType === 'rate_limit_error') {
+        addMessage('anna', '⚠ Rate limit reached. Wait a few seconds and try again.');
+      } else {
+        addMessage('anna', '⚠ API error: ' + errMsg + ' — check your terminal for details.');
+      }
+      setEye('idle');
+    } else {
+      const reply = data.content?.[0]?.text;
+      removeTyping();
+      if (!reply) {
+        addMessage('anna', '⚠ Got an empty reply. Check the terminal window running server.js for the error.');
+      } else {
+        conversationHistory.push({ role: 'assistant', content: reply });
+        addMessage('anna', reply);
+      }
+      setEye('idle');
+    }
+  } catch(err) {
+    removeTyping();
+    addMessage('anna', '⚠ Could not reach server. Is "node server.js" still running in your terminal?');
+    setEye('idle');
+  }
+
+  document.getElementById('send-btn').disabled = false;
+  input.focus();
+}
+
+function quickAsk(text) {
+  document.getElementById('msg-input').value = text;
+  sendMessage();
+}
+
+async function triggerSOS() {
+  addMessage('user', '🚨 SOS TRIGGERED');
+  conversationHistory.push({ role: 'user', content: 'SOS emergency signal triggered' });
+  setEye('thinking');
+  addTyping();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: buildSystemPrompt(),
+        messages: conversationHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || data._anna_error || data.error?.message || '⚠ SOS broadcast. Stay calm.';
+    removeTyping();
+    addMessage('anna', reply);
+    setEye('idle');
+  } catch(e) {
+    removeTyping();
+    addMessage('anna', '⚠ SOS signal broadcast. Emergency contacts notified. Location transmitted. Stay calm.');
+    setEye('idle');
+  }
+}
+
+// ── Voice ──
+const voiceBtn = document.getElementById('voice-btn');
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const rec = new SR();
+  rec.continuous = false; rec.lang = 'en-US';
+  rec.onresult = (e) => {
+    document.getElementById('msg-input').value = e.results[0][0].transcript;
+    voiceBtn.classList.remove('active');
+    setEye('idle');
+    sendMessage();
+  };
+  rec.onerror = rec.onend = () => { voiceBtn.classList.remove('active'); setEye('idle'); };
+  voiceBtn.onclick = () => {
+    if (voiceBtn.classList.contains('active')) { rec.stop(); }
+    else { voiceBtn.classList.add('active'); setEye('listening'); rec.start(); }
+  };
+} else {
+  voiceBtn.style.opacity = '0.3';
+  voiceBtn.onclick = () => addMessage('anna', 'Voice input requires Chrome or Edge browser.');
+}
+
+document.getElementById('msg-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+
+// ── Start boot ──
+boot();
+</script>
+</body>
+</html>
